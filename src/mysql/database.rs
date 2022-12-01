@@ -16,53 +16,20 @@
 // under the License.
 
 use actix_web::{HttpResponse, web};
-use mysql::*;
-use mysql::prelude::*;
-use serde::Deserialize;
-use crate::constant;
 
-#[derive(Deserialize)]
-pub struct CreateDatabaseReq {
-    database_name: String,
-}
+use crate::mysql::mysql_client;
+use crate::mysql::mysql_client::{CreateDatabaseReq, DropDatabaseReq};
 
 pub async fn create_database(req: web::Json<CreateDatabaseReq>) -> HttpResponse {
-    match create_database_internal(req.0).await {
-        Ok(_) => {
-            HttpResponse::Ok().body("")
-        }
-        Err(err) => {
-            HttpResponse::InternalServerError().body(err.to_string())
-        }
+    match mysql_client::from_env().create_database(req.into_inner()).await {
+        Ok(_) => HttpResponse::Ok().body(""),
+        Err(e) => HttpResponse::InternalServerError().body(e.to_string())
     }
-}
-
-async fn create_database_internal(req: CreateDatabaseReq) -> std::result::Result<(), Box<dyn std::error::Error>> {
-    let pool = Pool::new(constant::MYSQL_URL.as_str())?;
-    let mut conn = pool.get_conn()?;
-    conn.query_drop(format!("CREATE DATABASE {}", req.database_name))?;
-    Ok(())
-}
-
-#[derive(Deserialize)]
-pub struct DropDatabaseReq {
-    database_name: String,
 }
 
 pub async fn drop_database(req: web::Json<DropDatabaseReq>) -> HttpResponse {
-    match drop_database_internal(req.0).await {
-        Ok(_) => {
-            HttpResponse::Ok().body("")
-        }
-        Err(err) => {
-            HttpResponse::InternalServerError().body(err.to_string())
-        }
+    match mysql_client::from_env().drop_database(req.into_inner()).await {
+        Ok(_) => HttpResponse::Ok().body(""),
+        Err(e) => HttpResponse::InternalServerError().body(e.to_string())
     }
-}
-
-async fn drop_database_internal(req: DropDatabaseReq) -> std::result::Result<(), Box<dyn std::error::Error>> {
-    let pool = Pool::new(constant::MYSQL_URL.as_str())?;
-    let mut conn = pool.get_conn()?;
-    conn.query_drop(format!("DROP DATABASE {}", req.database_name))?;
-    Ok(())
 }

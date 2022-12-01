@@ -15,18 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod database;
-pub mod mysql_client;
+use actix_cors::Cors;
+use actix_web::{App, HttpServer, web};
+use mysql_dashboard::{mysql, util};
 
-use actix_web::{HttpResponse, web};
-
-pub fn mysql_router(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::resource("/hello").route(web::get().to(hello)))
-        .service(web::resource("/databases/create").route(web::post().to(database::create_database)))
-        .service(web::resource("/databases/delete").route(web::post().to(database::drop_database)))
-    ;
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
+    util::init();
+    HttpServer::new(|| {
+        let cors = Cors::permissive();
+        App::new().wrap(cors).configure(config)
+    })
+        .bind(("0.0.0.0", 10008))?
+        .run()
+        .await
 }
 
-async fn hello() -> HttpResponse {
-    HttpResponse::Ok().body("Hello, Mysql")
+fn config(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::scope("/api/mysql").configure(mysql::mysql_router));
 }

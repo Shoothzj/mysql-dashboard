@@ -15,17 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-extern crate core;
-
 use std::env;
 
-use actix_web::{App, HttpServer, web};
-
-mod constant;
-mod mysql;
-
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
+pub fn init() {
     let log_level = match env::var("LOG_LEVEL") {
         Ok(level) => {
             if level == "trace" {
@@ -59,14 +51,4 @@ async fn main() -> std::io::Result<()> {
         .level(log_level)
         .chain(std::io::stdout())
         .apply().unwrap();
-    HttpServer::new(|| {
-        App::new().configure(config)
-    })
-        .bind(("0.0.0.0", 10008))?
-        .run()
-        .await
-}
-
-fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/api/mysql").configure(mysql::mysql_router));
 }

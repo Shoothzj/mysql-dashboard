@@ -25,5 +25,6 @@ cargo build --release
 mkdir -p $DIR/dist
 rm -rf $DIR/dist/*
 cp -r $DIR/portal/build $DIR/dist/static
+cp $DIR/target/release/mysql-cli $DIR/dist/mysql-cli
 cp $DIR/target/release/mysql-dashboard $DIR/dist/mysql-dashboard
 cd $DIR
