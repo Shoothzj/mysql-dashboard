@@ -23,13 +23,23 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+actix-cors = "0.6.4"
 actix-web = "4.2.1"
+clap = { version = "4.0.27", features = ["derive"]}
 chrono = "0.4"
 fern = "0.6.1"
 lazy_static = "1.4.0"
 log = "0.4"
-mysql = "22.2.0"
+mysql = "23.0.0"
 rust-s3 = "0.32"
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.86"
 tokio = { version = "1.21.2", features = ["full"] }
+
+[[bin]]
+name = "mysql-cli"
+path = "src/bin/cmd/mysql_cli.rs"
+
+[[bin]]
+name = "mysql-dashboard"
+path = "src/bin/mysql_dashboard.rs"
